@@ -11,4 +11,5 @@ public interface UserMongoRepo extends MongoRepository<UserMongo, Integer> {
 	
 	public abstract void deleteByuserName(String userName);
 	
+	public abstract Optional<UserMongo> findByuserId(int userId);
 }

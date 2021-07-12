@@ -26,7 +26,7 @@ public class User {
 	private int id;
 
 	@NotEmpty
-	@Size(min = 8)
+	@Size(min = 5,max = 15)
 	@Column(name = "user_name")
 	private String userName;
 	@NotEmpty

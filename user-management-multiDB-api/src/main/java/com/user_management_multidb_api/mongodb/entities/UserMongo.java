@@ -16,11 +16,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class UserMongo {
 
 	@Id
+	private String id;
+	
 	@Field(name = "userId")
-	private int id;
+	private int userId;
 	
 	@NotEmpty
-	@Size(min = 8)
+	@Size(min = 5,max = 15)
 	private String userName;
 	@NotEmpty
 	private String password;
@@ -34,10 +36,11 @@ public class UserMongo {
 
 
 	@PersistenceConstructor
-	public UserMongo(int id,  @NotEmpty @Size(min = 8) String userName, @NotEmpty String password,
+	public UserMongo(String id, int userId, @NotEmpty @Size(min = 8) String userName, @NotEmpty String password,
 			Date createdDate, int requestedRoleId) {
 		super();
 		this.id = id;
+		this.userId = userId;
 		this.userName = userName;
 		this.password = password;
 		this.createdDate = createdDate;
@@ -45,13 +48,23 @@ public class UserMongo {
 	}
 
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
+	}
+
+
+	public int getUserId() {
+		return userId;
+	}
+
+
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 
@@ -97,9 +110,8 @@ public class UserMongo {
 
 	@Override
 	public String toString() {
-		return "UserMongo [id=" + id + ", userName=" + userName + ", password=" + password
+		return "UserMongo [id=" + id + ", userId=" + userId + ", userName=" + userName + ", password=" + password
 				+ ", createdDate=" + createdDate + ", requestedRoleId=" + requestedRoleId + "]";
 	}
-
 	
 }

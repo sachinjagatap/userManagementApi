@@ -37,15 +37,24 @@ public class ControllerClass {
 		return userService.getUsersFromMongoDb();
 	}
 	
+	@GetMapping(path = "/getMySqlUser/{id}",produces ="APPLICATION/JSON")
+	public ResponseEntity<User> getMySqlUserById( @PathVariable("id") int userId) {
+		return userService.getMySqlUserById(userId);
+	}
 	
-	@PutMapping(path = "/addUser",consumes = "APPLICATION/JSON",produces = "APPLICATION/JSON")
-	public ResponseEntity<Object> addUser(@RequestBody User user) {
+	@GetMapping(path = "/getMongoUser/{id}",produces ="APPLICATION/JSON")
+	public ResponseEntity<UserMongo> getMongoUserById( @PathVariable("id") int userId) {
+		return userService.getMongoUserById(userId);
+	}
+	
+	@PostMapping(path = "/addUser",consumes = "APPLICATION/JSON",produces = "APPLICATION/JSON")
+	public ResponseEntity<Object> addUser(@Valid @RequestBody User user) {
 		return userService.addUser(user);
 	}
 	
-	@PostMapping(value="/updateUser" ,consumes = "APPLICATION/JSON",produces = "APPLICATION/JSON")
-	public ResponseEntity<User> updateUser(@Valid @RequestBody User user){
-		   ResponseEntity<User> userObj = userService.updateUser(user);
+	@PutMapping(value="/updateUser/{id}" ,consumes = "APPLICATION/JSON",produces = "APPLICATION/JSON")
+	public ResponseEntity<User> updateUser(@PathVariable("id") int userId, @Valid @RequestBody User user){
+		   ResponseEntity<User> userObj = userService.updateUser(userId,user);
 		return userObj;
 	}
 	

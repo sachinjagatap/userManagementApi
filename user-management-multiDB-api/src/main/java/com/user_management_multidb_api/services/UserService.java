@@ -38,19 +38,30 @@ public class UserService {
 	@Transactional
 	public List<UserMongo> getUsersFromMongoDb(){
 		List<UserMongo> userLists = mongoRepo.findAll();
+		userLists.stream().forEach(u-> System.out.println(u));
 		return userLists;
 	} 
 	
 	// method for retrieving mysql user by id
 
 	@Transactional()
-	public ResponseEntity<User> getUserById (int id) {
+	public ResponseEntity<User> getMySqlUserById (int id) {
 		User user = mysqlRepo.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with id : " + id));
+				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with userId : " + id + " in MySqlDB"));
 		;
 
 		return ResponseEntity.status(HttpStatus.OK).body(user);
 	} 
+	
+	// method for retrieving mongo user by id
+	@Transactional()
+	public ResponseEntity<UserMongo> getMongoUserById (int id) {
+		UserMongo user = mongoRepo.findByuserId(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with userId : " + id + " in MongoDB"));
+		;
+
+		return ResponseEntity.status(HttpStatus.OK).body(user);
+	}
 	
 	
 	// method for adding a new user
@@ -75,7 +86,7 @@ public class UserService {
 
 		User mySqlUserObj = mysqlRepo.save(user);
 		
-		mongoUser.setId(mySqlUserObj.getId());
+		mongoUser.setUserId(mySqlUserObj.getId());
 		UserMongo mongoUserObj = mongoRepo.insert(mongoUser);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(user);
@@ -84,9 +95,9 @@ public class UserService {
 	// method for updating user
 	
 	@Transactional(transactionManager = "chainedTransactionManager")
-	public ResponseEntity<User> updateUser(User user) {
-		User existingUser = mysqlRepo.findById(user.getId())
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with id : " + user.getId()));
+	public ResponseEntity<User> updateUser(int userId,User user) {
+		User existingUser = mysqlRepo.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with userId : " + user.getId() + " in MySqlDB"));
 
 		existingUser.setUserName(user.getUserName());
 		existingUser.setPassword(user.getPassword());
@@ -102,17 +113,16 @@ public class UserService {
 		
 		UserMongo mongoUser = objMap.convertValue(user, UserMongo.class);
 
-		UserMongo existingMongoUser = mongoRepo.findById(mongoUser.getId())
+		UserMongo existingMongoUser = mongoRepo.findByuserId(userId)
 				                     .orElseThrow(()->
-				                                  new ResourceNotFoundException("User does not exists with id : " + mongoUser.getId()));
+				                                  new ResourceNotFoundException("User does not exists with userId : " + mongoUser.getId()+ " in MongoDB"));
 		
 		existingMongoUser.setUserName(mongoUser.getUserName());
 		existingMongoUser.setPassword(mongoUser.getPassword());
 		existingMongoUser.setRequestedRoleId(mongoUser.getRequestedRoleId());
 		
 		mongoRepo.save(existingMongoUser);
-		
-		return ResponseEntity.status(HttpStatus.OK).body(userObj);
+		return ResponseEntity.status(HttpStatus.OK).body(user);
 	} 
 	
 	// method for deleting user
@@ -120,15 +130,14 @@ public class UserService {
 	@Transactional(transactionManager = "chainedTransactionManager")
 	public ResponseEntity<User> deleteUser(int userId) {
 		User existingUser = mysqlRepo.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with id : " + userId));
+				.orElseThrow(() -> new ResourceNotFoundException("User does not exists with userId : " + userId + " in MySqlDB"));
 
 		mysqlRepo.delete(existingUser);
 		
 		/*****************mongo user delete part ************/
 		
 		UserMongo existingMongoUser = mongoRepo.findById(userId)
-		                                       .orElseThrow(()->
-                                new ResourceNotFoundException("User does not exists with id : " + userId));
+		                                       .orElseThrow(()-> new ResourceNotFoundException("User does not exists with userId : " + userId + " in MongoDB"));
 
 		mongoRepo.delete(existingMongoUser);
 		return ResponseEntity.status(HttpStatus.OK).build();
